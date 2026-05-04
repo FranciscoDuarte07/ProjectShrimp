@@ -20,7 +20,7 @@ public class BubbleProjectile : MonoBehaviour
         if (((1 << other.gameObject.layer) & hitLayers) == 0) return;
 
         IDamageable target = other.GetComponent<IDamageable>();
-        target?.TakeDamage(damage, transform.position);
+        target?.TakeDamage(damage, transform.position, "bubble");
 
         Pop();
     }

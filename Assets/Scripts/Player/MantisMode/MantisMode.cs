@@ -20,14 +20,12 @@ public class MantisMode : CombatMode
 
     public override void OnEnter()
     {
-        Debug.Log("[Shrimpy] Activando Modo Mantis");
         isAttacking = false;
         cooldownTimer = 0f;
     }
 
     public override void OnExit()
     {
-        Debug.Log("[Shrimpy] Saliendo de Modo Mantis");
         isAttacking = false;
     }
 
@@ -65,7 +63,6 @@ public class MantisMode : CombatMode
 
         PerformHitDetection();
 
-        Debug.Log($"[Shrimpy] ¡Golpe! Combo: {comboCount}");
     }
 
     private void EndAttack()
@@ -87,8 +84,7 @@ public class MantisMode : CombatMode
         foreach (Collider2D hit in hits)
         {
             IDamageable damageable = hit.GetComponent<IDamageable>();
-            damageable?.TakeDamage(attackDamage, player.transform.position);
-            Debug.Log($"[Shrimpy] Golpeó a {hit.name} por {attackDamage} daño.");
+            damageable?.TakeDamage(attackDamage, player.transform.position, "melee");
         }
     }
 

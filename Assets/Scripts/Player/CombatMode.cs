@@ -17,5 +17,7 @@ public abstract class CombatMode
 
     public abstract void PrimaryAction();
 
+    public abstract void SpecialAction();
+
     public abstract string ModeName { get; }
 }

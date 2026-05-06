@@ -13,7 +13,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     private bool armorBroken = false;
 
     [Header("Armadura - fuentes que la rompen")]
-    [SerializeField] private string[] armorBrokenSource = { "melee" };
+    [SerializeField] private string[] armorBrokenSource 
+        = { "melee", 
+            "megapunch", 
+            "watercurrent", 
+            "bubbleexplosion" };
 
     public virtual void Awake()
     {
@@ -25,18 +29,16 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     {
         if (hasArmor && !armorBroken)
         {
-            if (CanBreakArmor(sourceType))
+            if (CanDamageArmor(sourceType))
                 ApplyArmorDamage(amount, sourcePosition);
             else
                 OnArmorBlocked(sourceType);
-
             return;
         }
-
         ApplyDamage(amount, sourcePosition);
     }
 
-    private bool CanBreakArmor(string sourceType)
+    private bool CanDamageArmor(string sourceType)
     {
         foreach (string s in armorBrokenSource)
             if (s == sourceType) return true;
@@ -70,7 +72,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
         currentHP -= amount;
         OnHit(amount, sourcePosition);
 
-        if(currentHP <= 0f)
+        if (currentHP <= 0f)
         {
             currentHP = 0f;
             Die();
@@ -81,7 +83,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable
     {
         OnDeath();
         Destroy(gameObject);
-    }
+    }  
 
     public virtual void OnHit(float amount, Vector2 sourcePosition) { }
     public virtual void OnArmorHit(float amount, Vector2 sourcePosition) { }

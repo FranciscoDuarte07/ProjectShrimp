@@ -13,6 +13,8 @@ public class PistolMode : CombatMode
     private float shootTimer = 0f;
     private float penaltyTimer = 0f;
 
+    private float specialCooldownTimer = 0f;
+
     public float HeatLevel => heatLevel;
     public bool IsOverheated => isOverheated;
     public override string ModeName => "Pistola";
@@ -35,13 +37,15 @@ public class PistolMode : CombatMode
         shootTimer -= Time.deltaTime;
         timeSinceShot += Time.deltaTime;
 
+        if (specialCooldownTimer > 0f)
+            specialCooldownTimer -= Time.deltaTime;
+
         if (isOverheated)
             HandleOverheatPenalty();
         else
             HandleCooldown();
 
         player.CannonHeatUI?.UpdateHeat(heatLevel, isOverheated);
-
         RefreshSliderVisibility();
     }
 
@@ -63,7 +67,7 @@ public class PistolMode : CombatMode
             Rigidbody2D rgbd2d = bubble.GetComponent<Rigidbody2D>();
             if (rgbd2d != null)
             {
-                float dir = player.IsFacingRight ? 1f : -1f;
+                float dir = player.IsRight ? 1f : -1f;
                 rgbd2d.linearVelocity = new Vector2(dir * player.BulletSpeed, 0f);
             }  
         }
@@ -73,6 +77,19 @@ public class PistolMode : CombatMode
 
         if (heatLevel >= 100f)
             TriggerOverheat();
+    }
+
+    public override void SpecialAction()
+    {
+        if (specialCooldownTimer > 0f) return;
+        if (player.BubblePrisonPrefab == null) return;
+
+        specialCooldownTimer = player.BubblePrisonCooldown;
+
+        Object.Instantiate(
+            player.BubblePrisonPrefab,
+            player.transform.position,
+            Quaternion.identity);
     }
 
     private void HandleOverheatPenalty()

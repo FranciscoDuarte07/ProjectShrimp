@@ -658,6 +658,7 @@ GameObject:
   - component: {fileID: 712752875}
   - component: {fileID: 712752877}
   - component: {fileID: 712752874}
+  - component: {fileID: 712752878}
   m_Layer: 8
   m_Name: Square (1)
   m_TagString: Untagged
@@ -804,6 +805,33 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!50 &712752878
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712752873}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!4 &1251524351 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7112452074343434705, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
@@ -882,9 +910,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1251524351}
     - target: {fileID: 8365256883734568041, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
+      propertyPath: BubblePrisonPrefab
+      value: 
+      objectReference: {fileID: 1664206955258818394, guid: 759deacff2fc9864ebdfd5837e5766c4, type: 3}
+    - target: {fileID: 8365256883734568041, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
       propertyPath: CannonOverchargeUI
       value: 
       objectReference: {fileID: 531430477}
+    - target: {fileID: 8365256883734568041, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
+      propertyPath: WaterCurrentPrefab
+      value: 
+      objectReference: {fileID: 131739968272252525, guid: a44e68b140582ae42b09663d3d491a37, type: 3}
     - target: {fileID: 9179463816204859589, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -902,9 +938,9 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 568470263}
   - {fileID: 519420032}
   - {fileID: 62235685}
   - {fileID: 525350632843030473}
-  - {fileID: 568470263}
   - {fileID: 712752876}
   - {fileID: 152568345}

@@ -2,8 +2,21 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[Serializable]
+public struct DashData
+{
+    public float distance;
+    public float duration;
+    public float cooldown;
+}
+
 public class PlayerController : MonoBehaviour
 {
+    [Header("Componentes Gráficos")]
+    [SerializeField] private Transform graphicsTransform;
+    [SerializeField] private GameObject pistolModeGraphics;
+    [SerializeField] private GameObject mantisModeGraphics;
+
     [Header("Movimiento")]
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float jumpForce = 14f;
@@ -11,10 +24,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.15f;
 
-    [Header("Gráficos de modo  (hijos de Graphics)")]
-    [SerializeField] private Transform graphicsTransform;
-    [SerializeField] private GameObject pistolModeGraphics;  
-    [SerializeField] private GameObject mantisModeGraphics; 
+    [Header("Dash")]
+    [SerializeField] private GameObject afterimagePrefab;
+    [SerializeField] private float afterimageInterval = 0.05f;
+    [SerializeField] private float afterimageFadeTime = 0.2f;
 
     /*-------------------------------------------------------
                         Pistol Mode    
@@ -29,10 +42,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public GameObject BubblePrisonPrefab;
     [SerializeField] public float BubblePrisonCooldown = 8f;
 
+    [Header("Dash (Modo Pistola)")]
+    [SerializeField]
+    private DashData pistolDashData = new DashData
+    { 
+        distance = 7f, 
+        duration = 0.18f, 
+        cooldown = 1.8f 
+    };
+
     /*-------------------------------------------------------
                         Mantis Mode    
       -------------------------------------------------------*/
-    
+
     [Header("Combate (Modo Mantis)")]
     [SerializeField] public Transform ComboPoint;     
     [SerializeField] public LayerMask EnemyLayer;
@@ -41,9 +63,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public GameObject WaterCurrentPrefab;
     [SerializeField] public float MegaPunchCooldown = 6f;
 
+    [Header("Dash (Modo Mantis)")]
+    [SerializeField]
+    private DashData mantisDashData = new DashData
+    { 
+        distance = 3.5f, 
+        duration = 0.1f, 
+        cooldown = 0.9f 
+    };
     /*-------------------------------------------------------
                         References   
       -------------------------------------------------------*/
+
+    private DashSystem dashSystem;
 
     [Header("UI  (Canvas hijo de Player)")]
     [SerializeField] public CannonHeatUI CannonHeatUI;
@@ -58,7 +90,7 @@ public class PlayerController : MonoBehaviour
     public Action OnCannonOverheated;
     public Action OnCannonCooled;
 
-    private Rigidbody2D rb;
+    private Rigidbody2D rgbd;
     private CombatMode currentMode;
     private PistolMode modoPistola;
     private MantisMode modoMantis;
@@ -68,15 +100,17 @@ public class PlayerController : MonoBehaviour
     private InputAction actionAttack;
     private InputAction actionSpecialAttack;
     private InputAction actionTransform;
+    private InputAction actionDash;
 
     private Vector2 moveInput;
 
 
     private void Awake()
     {
-        rb = GetComponent<Rigidbody2D>();
-        modoPistola = new PistolMode(this);
-        modoMantis = new MantisMode(this);
+        rgbd = GetComponent<Rigidbody2D>();
+        modoPistola = new PistolMode(this, pistolDashData);
+        modoMantis = new MantisMode(this, mantisDashData);
+        dashSystem = new DashSystem(this, rgbd, graphicsTransform, afterimagePrefab, afterimageInterval, afterimageFadeTime);
         BindInputActions();
     }
 
@@ -87,6 +121,7 @@ public class PlayerController : MonoBehaviour
         actionAttack.performed += OnAttackPerformed;
         actionSpecialAttack.performed += OnSpecialAttackPerformed;
         actionTransform.performed += OnTransformPerformed;
+        actionDash.performed += OnDashPerformed;
     }
 
     private void OnDisable()
@@ -95,6 +130,7 @@ public class PlayerController : MonoBehaviour
         actionAttack.performed -= OnAttackPerformed;
         actionSpecialAttack.performed -= OnSpecialAttackPerformed;
         actionTransform.performed -= OnTransformPerformed;
+        actionDash.performed -= OnDashPerformed;
         inputActions?.Disable();
     }
 
@@ -108,12 +144,14 @@ public class PlayerController : MonoBehaviour
         moveInput = actionMove.ReadValue<Vector2>();
         IsGrounded = CheckGrounded();
         currentMode?.OnUpdate();
+        dashSystem.OnUpdate();
         FlipSprite(moveInput.x);
     }
 
     private void FixedUpdate()
     {
-        rb.linearVelocity = new Vector2(moveInput.x * moveSpeed, rb.linearVelocity.y);
+        if (dashSystem.IsDashing) return;
+        rgbd.linearVelocity = new Vector2(moveInput.x * moveSpeed, rgbd.linearVelocity.y);
     }
 
     private void BindInputActions()
@@ -124,12 +162,13 @@ public class PlayerController : MonoBehaviour
         actionAttack = inputActions.FindAction("Attack", true);
         actionSpecialAttack = inputActions.FindAction("SpecialAttack", true);
         actionTransform = inputActions.FindAction("Transform", true);
+        actionDash = inputActions.FindAction("Dash", true);
     }
 
     private void OnJumpPerformed(InputAction.CallbackContext ctx)
     {
         if (IsGrounded)
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            rgbd.linearVelocity = new Vector2(rgbd.linearVelocity.x, jumpForce);
     }
 
     private void OnAttackPerformed(InputAction.CallbackContext ctx)
@@ -140,6 +179,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTransformPerformed(InputAction.CallbackContext ctx)
         => TransformMode();
+
 
     public void TransformMode()
     {
@@ -179,6 +219,16 @@ public class PlayerController : MonoBehaviour
             s.x *= -1;
             graphicsTransform.localScale = s;
         }
+    }
+
+    private void OnDashPerformed(InputAction.CallbackContext ctx)
+    {
+        if (currentMode == null) return;
+        dashSystem.TryDash(
+            IsRight,
+            currentMode.DashDistance,
+            currentMode.DashDuration,
+            currentMode.DashCooldown);
     }
 
     private void OnDrawGizmosSelected()

@@ -906,6 +906,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 619949760}
     - target: {fileID: 8365256883734568041, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
+      propertyPath: afterimagePrefab
+      value: 
+      objectReference: {fileID: 2844545861825351297, guid: d66211ece575fd04d8a960781ff96f65, type: 3}
+    - target: {fileID: 8365256883734568041, guid: 24dbde5885e04934598bdd9478b04832, type: 3}
       propertyPath: graphicsTransform
       value: 
       objectReference: {fileID: 1251524351}

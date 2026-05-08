@@ -19,7 +19,7 @@ public class PistolMode : CombatMode
     public bool IsOverheated => isOverheated;
     public override string ModeName => "Pistola";
 
-    public PistolMode(PlayerController owner) : base(owner) { }
+    public PistolMode(PlayerController owner, DashData dashData) : base(owner, dashData) { }
 
     public override void OnEnter()
     {

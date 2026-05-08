@@ -20,7 +20,7 @@ public class MantisMode : CombatMode
 
     public override string ModeName => "Mantis";
 
-    public MantisMode(PlayerController owner) : base(owner) { }
+    public MantisMode(PlayerController owner, DashData dashData) : base(owner, dashData) { }
 
     public override void OnEnter()
     {
